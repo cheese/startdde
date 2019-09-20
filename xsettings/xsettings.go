@@ -99,11 +99,14 @@ func NewXSManager(conn *x.Conn, recommendedScaleFactor float64) (*XSManager, err
 }
 
 func (m *XSManager) adjustScaleFactor(recommendedScaleFactor float64) {
-	logger.Debug("recommended scale factor:", recommendedScaleFactor)
 	var err error
 	m.gs = gio.NewSettings(xsSchema)
-	if m.gs.GetUserValue(gsKeyScaleFactor) == nil &&
-		recommendedScaleFactor != defaultScaleFactor {
+	curScale := m.gs.GetDouble(gsKeyScaleFactor)
+	logger.Info("recommended scale factor:", recommendedScaleFactor, ", current:", curScale)
+	// If is OEM version, change the float scale to integer
+	if (m.gs.GetUserValue(gsKeyScaleFactor) == nil &&
+		recommendedScaleFactor != defaultScaleFactor) ||
+		(isOEMVersion() && isFloatNum(curScale)) {
 		err = m.setScaleFactorWithoutNotify(recommendedScaleFactor)
 		if err != nil {
 			logger.Warning("failed to set scale factor:", err)

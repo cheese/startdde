@@ -21,6 +21,7 @@ package display
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"regexp"
 	"sort"
@@ -206,6 +207,10 @@ func toListedScaleFactor(s float64) float64 {
 	} else if s >= max {
 		return max
 	}
+
+	// Only return integer scale for avoid the thin line problem
+	ret := int32(math.Trunc((s+0.25)*10) / 10)
+	return float64(ret)
 
 	for i := min; i <= max; i += step {
 		if i > s {
