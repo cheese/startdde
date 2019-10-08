@@ -22,6 +22,8 @@ package xsettings
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -29,6 +31,10 @@ const (
 	dmiSysVendor   = "/sys/class/dmi/id/sys_vendor"
 	dmiBoardVendor = "/sys/class/dmi/id/board_vendor"
 	dmiBiosVendor  = "/sys/class/dmi/id/bios_vendor"
+
+	// scale mode available values: integer
+	scaleModeSysFile  = "/etc/deepin/startdde/scale_mode"
+	scaleModeUserFile = ".config/deepin/startdde/scale_mode"
 )
 
 func isOEMVersion() bool {
@@ -47,6 +53,24 @@ func isHuaweiOEM() bool {
 		}
 	}
 	return false
+}
+
+func isIntegerScaleMode() bool {
+	if fileHasKey(scaleModeSysFile, "integer") {
+		return true
+	}
+	filename := filepath.Join(getHomeDir(), scaleModeUserFile)
+	return fileHasKey(filename, "integer")
+}
+
+func setIntegerScaleMode() error {
+	filename := filepath.Join(getHomeDir(), scaleModeUserFile)
+	dir := filepath.Dir(filename)
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(filename, []byte("integer"), 0644)
 }
 
 func fileHasKey(filename, key string) bool {
@@ -72,4 +96,12 @@ func isFloatNum(num float64) bool {
 		}
 	}
 	return false
+}
+
+func getHomeDir() string {
+	d := os.Getenv("HOME")
+	if len(d) != 0 {
+		return d
+	}
+	return filepath.Join("/home", os.Getenv("USER"))
 }

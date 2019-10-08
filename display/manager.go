@@ -27,7 +27,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/linuxdeepin/go-x11-client"
+	x "github.com/linuxdeepin/go-x11-client"
 	"github.com/linuxdeepin/go-x11-client/ext/randr"
 	"pkg.deepin.io/dde/api/drandr"
 	"pkg.deepin.io/gir/gio-2.0"
@@ -208,10 +208,6 @@ func toListedScaleFactor(s float64) float64 {
 		return max
 	}
 
-	// Only return integer scale for avoid the thin line problem
-	ret := int32(math.Trunc((s+0.25)*10) / 10)
-	return float64(ret)
-
 	for i := min; i <= max; i += step {
 		if i > s {
 			ii := i - step
@@ -219,13 +215,20 @@ func toListedScaleFactor(s float64) float64 {
 			d2 := i - s
 
 			if d1 >= d2 {
-				return i
+				s = i
+				goto out
 			} else {
-				return ii
+				s = ii
+				goto out
 			}
 		}
 	}
+
 	return max
+
+out:
+	// Only return integer scale for avoid the thin line problem
+	return float64(int32(math.Trunc((s+0.25)*10) / 10))
 }
 
 func (dpy *Manager) init() {

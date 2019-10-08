@@ -106,10 +106,15 @@ func (m *XSManager) adjustScaleFactor(recommendedScaleFactor float64) {
 	// If is OEM version, change the float scale to integer
 	if (m.gs.GetUserValue(gsKeyScaleFactor) == nil &&
 		recommendedScaleFactor != defaultScaleFactor) ||
-		(isOEMVersion() && isFloatNum(curScale)) {
+		(isOEMVersion() && isFloatNum(curScale) && !isIntegerScaleMode()) {
 		err = m.setScaleFactorWithoutNotify(recommendedScaleFactor)
 		if err != nil {
 			logger.Warning("failed to set scale factor:", err)
+		} else {
+			err := setIntegerScaleMode()
+			if err != nil {
+				logger.Warning("failed to set scale mode to integer:", err)
+			}
 		}
 		m.restartOSD = true
 	}
