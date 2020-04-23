@@ -26,6 +26,7 @@ func GetEDIDChecksum(edid []byte) string {
 		return ""
 	}
 
-	id, _ := libutils.SumStrMd5(string(edid[:128]))
+	// 最后俩字节两边获取到的可能会不同
+	id, _ := libutils.SumStrMd5(string(edid[:126]))
 	return id
 }
