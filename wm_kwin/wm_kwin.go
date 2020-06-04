@@ -28,6 +28,8 @@ const (
 	osdSwitch2DWM    = "SwitchWM2D"
 	osdSwitch3DWM    = "SwitchWM3D"
 	osdSwitchWMError = "SwitchWMError"
+	
+	minKeyEventInterval = 2 * time.Second
 )
 
 var logger *log.Logger
@@ -79,6 +81,7 @@ type Switcher struct {
 	service *dbusutil.Service
 	sigLoop *dbusutil.SignalLoop
 	wm      *wm.Wm
+	lastEventTime time.Time
 
 	signals *struct {
 		WMChanged struct {
@@ -95,6 +98,7 @@ type Switcher struct {
 func newSwitcher(service *dbusutil.Service) *Switcher {
 	s := &Switcher{
 		service: service,
+		lastEventTime: time.Now(),
 	}
 
 	sessionBus := service.Conn()
@@ -127,6 +131,10 @@ func (s *Switcher) CurrentWM() (string, *dbus.Error) {
 }
 
 func (s *Switcher) requestSwitchWM() error {
+	if s.isIgnoreRepeat() {
+		return errors.New("Setting too faste")
+	}
+
 	enabled, err := s.wm.CompositingEnabled().Get(0)
 	if err != nil {
 		return err
@@ -236,4 +244,16 @@ func setCompositingEnabledInKWinRc(enabled bool) error {
 	kf.SetBool("Compositing", "Enabled", enabled)
 	err = kf.SaveToFile(filename)
 	return err
+}
+
+func (s *Switcher) isIgnoreRepeat() bool {
+	now := time.Now()
+	duration := now.Sub(s.lastEventTime)
+	logger.Debug("duration:", duration)
+	if 0 < duration && duration < minKeyEventInterval {
+		logger.Debug("isIgnoreRepeat ")
+		return true
+	}
+	s.lastEventTime = now
+	return false
 }
