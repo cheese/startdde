@@ -46,12 +46,13 @@ func (m *XSManager) getScaleFactor() float64 {
 }
 
 const (
-	EnvDeepinWineScale      = "DEEPIN_WINE_SCALE"
-	gsKeyScaleFactor        = "scale-factor"
-	gsKeyWindowScale        = "window-scale"
-	gsKeyGtkCursorThemeSize = "gtk-cursor-theme-size"
-	gsKeyIndividualScaling  = "individual-scaling"
-	baseCursorSize          = 24
+	EnvDeepinWineScale           = "DEEPIN_WINE_SCALE"
+	gsKeyScaleFactor             = "scale-factor"
+	gsKeyRecommendScaleFactor    = "recommend-scale-factor"
+	gsKeyWindowScale             = "window-scale"
+	gsKeyGtkCursorThemeSize      = "gtk-cursor-theme-size"
+	gsKeyIndividualScaling       = "individual-scaling"
+	baseCursorSize               = 24
 
 	qtThemeSection               = "Theme"
 	qtThemeKeyScreenScaleFactors = "ScreenScaleFactors"

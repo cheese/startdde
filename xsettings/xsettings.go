@@ -266,6 +266,18 @@ func Start(conn *x.Conn, l *log.Logger, recommendedScaleFactor float64) (*XSMana
 		logger.Error("Start xsettings failed:", err)
 		return nil, err
 	}
+
+	gsScale := m.gs.GetDouble(gsKeyRecommendScaleFactor)
+	if (gsScale != recommendedScaleFactor) {
+		logger.Debug("get gs recommend-scale-factor value: ", gsScale)
+		m.setScaleFactor(recommendedScaleFactor, true) 
+		err := m.setScreenScaleFactorsForQt(map[string]float64{"": recommendedScaleFactor})
+		if err != nil {
+			logger.Warning("connect a new monitor, failed to set recommend scale factor for qt:", err)
+		}
+		m.gs.SetDouble(gsKeyRecommendScaleFactor, recommendedScaleFactor)
+	}
+
 	m.updateDPI()
 	m.updateXResources()
 	go m.updateFirefoxDPI()
