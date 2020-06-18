@@ -51,6 +51,8 @@ type Monitor struct {
 	Reflect     uint16
 	RefreshRate float64
 
+	oldRotation uint16
+
 	// dbusutil-gen: equal=nil
 	CurrentMode ModeInfo
 
@@ -253,6 +255,7 @@ func (m *Monitor) SetRotation(value uint16) *dbus.Error {
 	if m.Rotation == value {
 		return nil
 	}
+	m.oldRotation = m.Rotation
 	m.markChanged()
 	m.setRotation(value)
 	return nil
