@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -133,8 +132,6 @@ func (m *SessionManager) prepareLogout(force bool) {
 	}
 
 	killSogouImeWatchdog()
-	// kill process LangSelector ,because LangSelector will not be kill by common logout
-	killLangSelector()
 	stopBAMFDaemon()
 
 	if !force && soundutils.CanPlayEvent(soundutils.EventDesktopLogout) {
@@ -142,20 +139,6 @@ func (m *SessionManager) prepareLogout(force bool) {
 		// PulseAudio should have quit
 	} else {
 		quitPulseAudio()
-	}
-}
-
-// kill process LangSelector by cmd "pkill -ef -u $UID /usr/lib/deepin-daemon/langselector"
-func killLangSelector() {
-	u, err := user.Current()
-	if err != nil {
-		logger.Debug("failed to get current user:", err)
-	}
-	out, err := exec.Command("pkill", "-ef", "-u", u.Uid, "/usr/lib/deepin-daemon/langselector").Output()
-	if err != nil {
-		logger.Debug("failed to kill langselector:", err)
-	} else {
-		logger.Infof("kill langselector out:%s", out)
 	}
 }
 
